@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+
+import os, sys
+from database import Database
+
+if __name__ == '__main__':
+    db = Database('games.db')
+    db.add(sys.argv[1])
+    db.close()
