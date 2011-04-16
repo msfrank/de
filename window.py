@@ -22,10 +22,11 @@ class MainWindow(object):
         self.window.connect("delete_event", self.delete_event)
 
         # create a TreeStore with one string column to use as the model
-        self.store = gtk.ListStore(str, str, str, str)
+        self.store = gtk.ListStore(str, str)
         # we'll add some data now - 4 rows with 3 child rows each
         for game in self.db:
-            self.store.append(None, [game.name, game.title, game.year, game.manufacturer])
+            s = "<span font_weight='bold' size='medium'>%s</span>\n<span size='x-small'>by %s (%s)</span>" % (game.title, game.manufacturer, game.year)
+            self.store.append([game.name, s])
         # create the TreeView using store
         self.treeview = gtk.TreeView(self.store)
         # create the TreeViewColumn to display the data
@@ -38,7 +39,7 @@ class MainWindow(object):
         self.tvcolumn.pack_start(self.cell, True)
         # set the cell "text" attribute to column 0 - retrieve text
         # from that column in store
-        self.tvcolumn.add_attribute(self.cell, 'text', 1)
+        self.tvcolumn.add_attribute(self.cell, 'markup', 1)
         # make it searchable
         self.treeview.set_search_column(1)
         # Allow sorting on the column
