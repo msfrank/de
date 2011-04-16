@@ -5,5 +5,5 @@ from database import Database
 
 if __name__ == '__main__':
     db = Database('games.db')
-    db.resync('games.xml')
+    db.resync(sys.argv[1])
     db.close()

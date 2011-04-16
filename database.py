@@ -4,9 +4,14 @@ import cPickle as pickle
 
 class Game(object):
     def __init__(self, name, info={}):
+        self.name = name
         self.title = info.get('description', '(no title)')
         self.year = info.get('year', '')
         self.manufacturer = info.get('manufacturer', '')
+        self.status = info.get('status', 'unsupported')
+
+    def __str__(self):
+        return "<Game: %s>" % self.title
 
 class Database(object):
     def __init__(self, path):
@@ -21,11 +26,11 @@ class Database(object):
             dbtype=bsddb3.db.DB_BTREE, flags=bsddb3.db.DB_CREATE)
 
     def close(self):
-        self._metadata.close()
+        if not self._metadata == None: self._metadata.close()
         self._metadata = None
-        self._supported.close()
+        if not self._supported == None: self._supported.close()
         self._supported = None
-        self._available.close()
+        if not self._available == None: self._available.close()
         self._available = None
 
     def __getitem__(self, name):
@@ -45,9 +50,9 @@ class Database(object):
 
     def __iter__(self):
         class _Iterator(object):
-            def __init__(self, cursor, available):
+            def __init__(self, cursor, supported):
                 self.cursor = cursor
-                self.available = available
+                self.supported = supported
             def __iter__(self):
                 return self
             def next(self):
@@ -55,17 +60,17 @@ class Database(object):
                     raise StopIteration()
                 try:
                     name,_ = self.cursor.next()
-                    item = pickle.loads(self.available[name])
-                    item['name'] = name
-                    return item
+                    item = pickle.loads(self.supported[name])
+                    return Game(name, item)
                 except:
                     pass
+                self.close()
                 raise StopIteration()
             def close(self):
-                self.cursor.close()
+                if self.cursor: self.cursor.close()
                 self.cursor = None
-                self.available = None
-        return _Iterator(self._supported.cursor(), self._available)
+                self.supported = None
+        return _Iterator(self._available.cursor(), self._supported)
 
     def resync(self, xmlpath):
         with file(xmlpath, 'r') as infile:
