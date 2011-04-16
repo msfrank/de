@@ -3,17 +3,26 @@
 import pygtk
 pygtk.require('2.0')
 import gtk
+from mame import MAME
 
 class MainWindow(object):
 
     # close the window and quit
-    def delete_event(self, widget, event, data=None):
+    def delete_event(self, window, event, data=None):
         self.db.close()
         gtk.main_quit()
         return False
 
+    def run_game(self, treeview, path, viewcolumn):
+        node = self.store.get_iter(path)
+        name = str(self.store.get(node, 0))
+        print "running game: %s" % name
+        game = self.db[name]
+        self.mame.play(game)
+
     def __init__(self, db):
         self.db = db
+        self.mame = MAME('/usr/games/mame')
 
         # Create a new window
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -29,6 +38,10 @@ class MainWindow(object):
             self.store.append([game.name, s])
         # create the TreeView using store
         self.treeview = gtk.TreeView(self.store)
+        self.treeview.set_headers_visible(False)
+        self.treeview.connect("row-activated", self.run_game)
+        self.window.add(self.treeview)
+
         # create the TreeViewColumn to display the data
         self.tvcolumn = gtk.TreeViewColumn('Game')
         # add tvcolumn to treeview
@@ -46,6 +59,5 @@ class MainWindow(object):
         self.tvcolumn.set_sort_column_id(1)
         # Allow drag and drop reordering of rows
         self.treeview.set_reorderable(False)
-        self.window.add(self.treeview)
 
         self.window.show_all()
