@@ -1,1 +1,36 @@
 A MAME emulator of epic proportions
+-----------------------------------
+
+1. Installation
+
+ de requires python, pygtk, and bsddb3.  If you are running Ubuntu, the
+ packages are python, python-gtk2, and python-bsddb3.
+
+2. Configuration
+
+ de first needs to build a database from the MAME supported games list.  To
+ do this, first run the following command to get the list in xml format:
+
+  $ mame -listxml > games.xml
+
+ Then, generate the de database from the games list:
+
+  $ de-resync games.xml
+
+ This creates a file called games.db in the current directory.
+
+3. Adding games
+
+ Each game present in your library needs to be added using the de-add-game
+ command:
+
+  $ de-add-game <gamename>
+
+4. Running the frontend
+
+ After you have added your games, run the frontend:
+
+  $ double-elbow
+
+ The 'w' and 's' keys scroll up and down.  'enter' to start playing a game,
+ 'q' quits the frontend.
