@@ -15,7 +15,7 @@ class MainWindow(object):
 
     def run_game(self, treeview, path, viewcolumn):
         node = self.store.get_iter(path)
-        name = str(self.store.get(node, 0))
+        name = str(self.store.get(node, 0)[0])
         print "running game: %s" % name
         game = self.db[name]
         self.mame.play(game)
